@@ -3,31 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lucky Lotto - 행운의 번호 추천</title>
+    <title>Study Planner Pro</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>✨ Lucky Lotto</h1>
-            <p>오늘의 행운을 잡아보세요!</p>
+    <div id="app">
+        <!-- 메인 앱 컨테이너 -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1>Study<span>Planner</span></h1>
+                <div id="progress-container">
+                    <label>오늘의 성취도</label>
+                    <div class="progress-bar">
+                        <div id="progress-fill" style="width: 0%"></div>
+                    </div>
+                    <span id="progress-text">0%</span>
+                </div>
+            </div>
         </header>
 
-        <main>
-            <div id="ball-container">
-                <!-- 번호 공이 생성될 위치 -->
-                <div class="placeholder">버튼을 눌러 번호를 생성하세요</div>
-            </div>
-            
-            <button id="generate-btn">번호 생성하기</button>
+        <main class="app-main">
+            <section class="input-section">
+                <div class="input-group">
+                    <input type="text" id="task-input" placeholder="무엇을 공부하실 건가요?" autofocus>
+                    <button id="add-btn">추가하기</button>
+                </div>
+            </section>
+
+            <section class="list-section">
+                <div class="filter-bar">
+                    <button class="filter-btn active" data-filter="all">전체</button>
+                    <button class="filter-btn" data-filter="pending">진행 중</button>
+                    <button class="filter-btn" data-filter="completed">완료</button>
+                </div>
+                <ul id="task-list">
+                    <!-- 컴포넌트들이 여기에 동적으로 렌더링됩니다 -->
+                </ul>
+            </section>
         </main>
 
-        <footer>
-            <p>© 2026 Lucky Lotto. Good Luck!</p>
+        <footer class="app-footer">
+            <p>© 2026 Study Planner Pro. Keep Pushing!</p>
         </footer>
     </div>
-    <script src="main.js"></script>
+
+    <!-- Web Components & Logic -->
+    <script src="main.js" type="module"></script>
 </body>
 </html>

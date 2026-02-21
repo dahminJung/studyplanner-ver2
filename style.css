@@ -1,9 +1,15 @@
+/* Modern Reset & Base */
 :root {
-    --primary-color: #6366f1;
-    --bg-color: #f8fafc;
-    --text-color: #1e293b;
-    --card-bg: #ffffff;
-    --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    --primary: oklch(0.6 0.18 250);
+    --primary-light: oklch(0.9 0.05 250);
+    --secondary: oklch(0.7 0.15 320);
+    --bg: oklch(0.98 0.01 250);
+    --card: #ffffff;
+    --text: oklch(0.2 0.02 250);
+    --text-dim: oklch(0.5 0.02 250);
+    --success: oklch(0.7 0.15 150);
+    --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+    --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 * {
@@ -14,106 +20,197 @@
 
 body {
     font-family: 'Pretendard', sans-serif;
-    background-color: var(--bg-color);
-    color: var(--text-color);
+    background-color: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
     display: flex;
     justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    padding: 20px;
+    padding: 2rem 1rem;
 }
 
-.container {
-    background-color: var(--card-bg);
-    padding: 3rem;
-    border-radius: 24px;
-    box-shadow: var(--shadow);
-    max-width: 600px;
+#app {
+    max-width: 800px;
     width: 100%;
-    text-align: center;
 }
 
-header h1 {
-    font-size: 2.5rem;
-    margin-bottom: 0.5rem;
-    background: linear-gradient(to right, #6366f1, #a855f7);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+/* Header & Progress */
+.app-header {
+    margin-bottom: 3rem;
+    text-align: left;
 }
 
-header p {
-    color: #64748b;
-    margin-bottom: 2.5rem;
+.header-content h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    letter-spacing: -1px;
 }
 
-#ball-container {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 15px;
-    min-height: 100px;
+.header-content h1 span {
+    color: var(--primary);
+    margin-left: 0.2rem;
+}
+
+#progress-container {
+    margin-top: 1.5rem;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
     align-items: center;
-    margin-bottom: 2.5rem;
+    gap: 1rem;
+    background: var(--card);
+    padding: 1.2rem;
+    border-radius: 20px;
+    box-shadow: var(--shadow);
 }
 
-.placeholder {
-    color: #cbd5e1;
-    font-style: italic;
+#progress-container label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-dim);
 }
 
-/* 로또 공 스타일 */
-.ball {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
+.progress-bar {
+    height: 10px;
+    background: var(--primary-light);
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+#progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    transition: width 0.6s ease;
+}
+
+#progress-text {
+    font-weight: 800;
+    color: var(--primary);
+}
+
+/* Input Section */
+.input-section {
+    margin-bottom: 2rem;
+}
+
+.input-group {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: bold;
-    font-size: 1.25rem;
-    color: white;
-    box-shadow: inset -5px -5px 10px rgba(0,0,0,0.2), 5px 5px 15px rgba(0,0,0,0.1);
-    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-    opacity: 0;
+    gap: 0.5rem;
+    background: var(--card);
+    padding: 0.5rem;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
 }
 
-@keyframes popIn {
-    from { transform: scale(0); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
+input[type="text"] {
+    flex: 1;
+    border: none;
+    padding: 1rem 1.5rem;
+    font-size: 1.1rem;
+    font-family: inherit;
+    outline: none;
 }
 
-/* 번호 구간별 색상 */
-.ball.color-1 { background: radial-gradient(circle at 30% 30%, #facc15, #eab308); } /* 1-10 */
-.ball.color-2 { background: radial-gradient(circle at 30% 30%, #60a5fa, #3b82f6); } /* 11-20 */
-.ball.color-3 { background: radial-gradient(circle at 30% 30%, #f87171, #ef4444); } /* 21-30 */
-.ball.color-4 { background: radial-gradient(circle at 30% 30%, #94a3b8, #64748b); } /* 31-40 */
-.ball.color-5 { background: radial-gradient(circle at 30% 30%, #4ade80, #22c55e); } /* 41-45 */
-
-#generate-btn {
-    background-color: var(--primary-color);
+#add-btn {
+    background: var(--primary);
     color: white;
     border: none;
-    padding: 1rem 2rem;
-    font-size: 1.1rem;
-    font-weight: bold;
+    padding: 0 1.5rem;
     border-radius: 12px;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 14px 0 rgba(99, 102, 241, 0.39);
+    transition: var(--transition);
 }
 
-#generate-btn:hover {
+#add-btn:hover {
+    filter: brightness(1.1);
     transform: translateY(-2px);
-    background-color: #4f46e5;
-    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
 }
 
-#generate-btn:active {
-    transform: translateY(0);
+/* List Section & Filters */
+.filter-bar {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
 }
 
-footer {
-    margin-top: 2.5rem;
-    font-size: 0.875rem;
-    color: #94a3b8;
+.filter-btn {
+    background: none;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-weight: 600;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.filter-btn.active {
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+#task-list {
+    list-style: none;
+    display: grid;
+    gap: 1rem;
+}
+
+/* Task Card Style */
+.task-card {
+    background: var(--card);
+    padding: 1.2rem;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    animation: slideUp 0.4s ease forwards;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.task-card:hover {
+    transform: scale(1.01);
+}
+
+.task-card input[type="checkbox"] {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    accent-color: var(--success);
+}
+
+.task-text {
+    flex: 1;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.task-card.completed .task-text {
+    text-decoration: line-through;
+    color: var(--text-dim);
+}
+
+.delete-btn {
+    background: none;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    opacity: 0;
+    transition: var(--transition);
+    padding: 0.5rem;
+}
+
+.task-card:hover .delete-btn {
+    opacity: 1;
+}
+
+.app-footer {
+    margin-top: 4rem;
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 0.9rem;
 }

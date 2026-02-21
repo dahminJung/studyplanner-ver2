@@ -3,114 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Study Planner Dashboard</title>
+    <title>Study Planner</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="dashboard">
-        <!-- Left Panel: Subjects & Timer -->
-        <aside class="panel left-panel">
-            <header class="logo">
-                <h1>Study<span>Planner</span></h1>
-            </header>
-            
-            <section class="card subjects-card">
-                <h2>📚 과목 관리</h2>
-                <div class="add-subject">
-                    <input type="text" id="subject-name" placeholder="새 과목명">
-                    <input type="color" id="subject-color" value="#6366f1">
-                    <button id="add-subject-btn">+</button>
-                </div>
-                <ul id="subject-list" class="subject-list"></ul>
-            </section>
+    <nav class="top-nav">
+        <div class="nav-logo">Study<span>Planner</span></div>
+        <div class="nav-links">
+            <button id="nav-planner" class="nav-btn active">📝 플래너</button>
+            <button id="nav-stats" class="nav-btn">📊 통계</button>
+        </div>
+    </nav>
 
-            <section class="card timer-card">
-                <h2>⏱️ 학습 타이머</h2>
-                <div class="timer-display" id="timer-display">00:00:00</div>
-                <div class="timer-controls">
-                    <button id="timer-start" class="btn primary">시작</button>
-                    <button id="timer-stop" class="btn warning" disabled>정지</button>
-                    <button id="timer-reset" class="btn secondary">초기화</button>
+    <div class="app-container">
+        <!-- ============================== -->
+        <!-- 플래너 페이지 (Main) -->
+        <!-- ============================== -->
+        <div id="planner-page" class="page-content active">
+            <div class="planner-layout">
+                
+                <!-- Left: Time Table -->
+                <div class="timetable-section">
+                    <div class="section-header">
+                        <h2>Time Table</h2>
+                        <span class="subtitle">06:00 ~ 24:00</span>
+                    </div>
+                    <div class="time-grid-container" id="time-grid-container">
+                        <!-- JS에서 동적 생성됨 -->
+                    </div>
                 </div>
-                <div class="timer-save-area" id="timer-save-area" style="display: none;">
-                    <p>기록할 과목을 선택하세요:</p>
-                    <select id="timer-subject-select"></select>
-                    <button id="timer-save-btn" class="btn primary">저장</button>
-                </div>
-                <p class="timer-notice">⚠️ 다른 탭으로 이동 시 자동으로 정지됩니다.</p>
-            </section>
-        </aside>
 
-        <!-- Main Panel: To-Do & Time Table -->
-        <main class="panel main-panel">
-            <section class="card todo-card">
-                <h2>📋 투두 리스트 (To-Do)</h2>
-                <div class="add-todo">
-                    <input type="text" id="todo-input" placeholder="오늘 해야 할 일을 적어보세요">
-                    <select id="todo-subject-select">
-                        <option value="">과목 없음</option>
-                    </select>
-                    <button id="add-todo-btn" class="btn primary">추가</button>
-                </div>
-                <ul id="todo-list" class="todo-list"></ul>
-            </section>
+                <!-- Right: Sidebar -->
+                <div class="sidebar-section">
+                    
+                    <!-- Subjects -->
+                    <div class="box subjects-box">
+                        <h2>과목 관리</h2>
+                        <div class="add-subject">
+                            <input type="text" id="subject-name" placeholder="과목명 입력">
+                            <div class="color-palette" id="color-palette">
+                                <button class="color-btn active" style="background-color: #ffb3ba;" data-color="#ffb3ba"></button>
+                                <button class="color-btn" style="background-color: #ffdfba;" data-color="#ffdfba"></button>
+                                <button class="color-btn" style="background-color: #ffffba;" data-color="#ffffba"></button>
+                                <button class="color-btn" style="background-color: #baffc9;" data-color="#baffc9"></button>
+                                <button class="color-btn" style="background-color: #bae1ff;" data-color="#bae1ff"></button>
+                                <button class="color-btn" style="background-color: #e8baff;" data-color="#e8baff"></button>
+                            </div>
+                            <button id="add-subject-btn" class="btn primary">추가</button>
+                        </div>
+                        <ul id="subject-list" class="subject-list"></ul>
+                    </div>
 
-            <section class="card timetable-card">
-                <div class="timetable-header">
-                    <h2>📅 일간 시간표</h2>
-                    <p class="subtitle">블록을 클릭하여 학습 시간을 배정하세요.</p>
-                </div>
-                <div class="timetable-container">
-                    <div class="time-labels" id="time-labels"></div>
-                    <div class="time-grid" id="time-grid"></div>
-                </div>
-            </section>
-        </main>
+                    <!-- To-Do List -->
+                    <div class="box todo-box">
+                        <h2>To-Do List</h2>
+                        <div class="add-todo">
+                            <input type="text" id="todo-input" placeholder="할 일 입력">
+                            <select id="todo-subject-select">
+                                <option value="">과목 선택</option>
+                            </select>
+                            <button id="add-todo-btn" class="btn primary">+</button>
+                        </div>
+                        <ul id="todo-list" class="todo-list"></ul>
+                    </div>
 
-        <!-- Right Panel: Statistics -->
-        <aside class="panel right-panel">
-            <section class="card stats-card">
-                <h2>📊 학습 통계</h2>
+                    <!-- Smart Timer -->
+                    <div class="box timer-box">
+                        <h2>학습 타이머</h2>
+                        <div class="timer-display" id="timer-display">00:00:00</div>
+                        <div class="timer-controls">
+                            <button id="timer-start" class="btn primary">시작</button>
+                            <button id="timer-stop" class="btn warning" disabled>정지</button>
+                            <button id="timer-reset" class="btn secondary">초기화</button>
+                        </div>
+                        <div class="timer-save-area" id="timer-save-area" style="display: none;">
+                            <select id="timer-subject-select"></select>
+                            <button id="timer-save-btn" class="btn primary">시간 기록</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================== -->
+        <!-- 통계 페이지 (Stats) -->
+        <!-- ============================== -->
+        <div id="stats-page" class="page-content">
+            <div class="stats-layout">
+                <h2>학습 통계 리포트</h2>
                 
                 <div class="stats-overview">
-                    <div class="stat-box">
-                        <span class="stat-title">총 학습 시간</span>
+                    <div class="stat-card">
+                        <span class="stat-label">총 학습 시간</span>
                         <strong class="stat-value" id="total-time-val">0h 0m</strong>
                     </div>
-                    <div class="stat-box">
-                        <span class="stat-title">투두 달성률</span>
+                    <div class="stat-card">
+                        <span class="stat-label">To-Do 달성률</span>
                         <strong class="stat-value" id="todo-rate-val">0%</strong>
                     </div>
                 </div>
 
-                <div class="chart-container">
-                    <h3>과목별 비중 (Pie Chart)</h3>
-                    <div class="pie-chart" id="pie-chart"></div>
-                    <ul class="chart-legend" id="chart-legend"></ul>
-                </div>
-
-                <div class="chart-container">
-                    <h3>과목별 학습 시간 (Bar Chart)</h3>
-                    <div class="bar-chart" id="bar-chart"></div>
-                </div>
-            </section>
-        </aside>
-
-        <!-- 모달 (과목 배정용) -->
-        <div id="modal-overlay" class="modal-overlay">
-            <div class="modal">
-                <h3>시간 배정</h3>
-                <p>해당 시간에 배정할 과목을 선택하세요.</p>
-                <select id="modal-subject-select"></select>
-                <div class="modal-actions">
-                    <button id="modal-cancel" class="btn secondary">취소</button>
-                    <button id="modal-clear" class="btn warning">비우기</button>
-                    <button id="modal-confirm" class="btn primary">확인</button>
+                <div class="charts-wrapper">
+                    <div class="chart-box">
+                        <h3>과목별 학습 비율</h3>
+                        <div class="pie-chart" id="pie-chart"></div>
+                        <ul class="chart-legend" id="chart-legend"></ul>
+                    </div>
+                    <div class="chart-box">
+                        <h3>과목별 학습 시간</h3>
+                        <div class="bar-chart" id="bar-chart"></div>
+                    </div>
                 </div>
             </div>
         </div>
+
     </div>
+
+    <!-- Modal (시간표 과목 배정) -->
+    <div id="modal-overlay" class="modal-overlay">
+        <div class="modal">
+            <h3>과목 배정</h3>
+            <select id="modal-subject-select"></select>
+            <div class="modal-actions">
+                <button id="modal-cancel" class="btn secondary">취소</button>
+                <button id="modal-clear" class="btn warning">지우기</button>
+                <button id="modal-confirm" class="btn primary">배정</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module" src="main.js"></script>
 </body>
 </html>

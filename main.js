@@ -1,5 +1,5 @@
 // ==========================================
-// Study Planner Dashboard - Core Logic
+// Study Planner Pro - Logic
 // ==========================================
 
 class StudyStore {
@@ -7,7 +7,7 @@ class StudyStore {
         this.data = JSON.parse(localStorage.getItem('study-planner-data')) || {
             subjects: [],      // { id, name, color }
             todos: [],         // { id, text, subjectId, completed }
-            timeBlocks: {},    // key: hour (0-23), value: subjectId
+            timeBlocks: {},    // key: hour (6-23), value: subjectId
             studyRecords: {}   // key: subjectId, value: seconds
         };
     }
@@ -16,16 +16,47 @@ class StudyStore {
         document.dispatchEvent(new Event('store-updated'));
     }
 }
-
 const store = new StudyStore();
 
 // ==========================================
-// 1. Subjects Management
+// 0. Navigation (Page Toggle)
+// ==========================================
+const btnPlanner = document.getElementById('nav-planner');
+const btnStats = document.getElementById('nav-stats');
+const pagePlanner = document.getElementById('planner-page');
+const pageStats = document.getElementById('stats-page');
+
+btnPlanner.addEventListener('click', () => {
+    btnPlanner.classList.add('active');
+    btnStats.classList.remove('active');
+    pagePlanner.classList.add('active');
+    pageStats.classList.remove('active');
+});
+
+btnStats.addEventListener('click', () => {
+    btnStats.classList.add('active');
+    btnPlanner.classList.remove('active');
+    pageStats.classList.add('active');
+    pagePlanner.classList.remove('active');
+});
+
+// ==========================================
+// 1. Subjects Management & Color Palette
 // ==========================================
 const subjectNameInput = document.getElementById('subject-name');
-const subjectColorInput = document.getElementById('subject-color');
 const addSubjectBtn = document.getElementById('add-subject-btn');
 const subjectListEl = document.getElementById('subject-list');
+const colorBtns = document.querySelectorAll('.color-btn');
+let selectedColor = '#ffb3ba'; // Default color
+
+colorBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        colorBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedColor = btn.dataset.color;
+    });
+});
+
 const selects = [
     document.getElementById('todo-subject-select'),
     document.getElementById('timer-subject-select'),
@@ -35,14 +66,12 @@ const selects = [
 function renderSubjects() {
     subjectListEl.innerHTML = '';
     
-    // Select 박스들 초기화
     selects.forEach(select => {
-        const defaultOption = select.id === 'todo-subject-select' ? '<option value="">과목 없음</option>' : '';
+        const defaultOption = select.id === 'todo-subject-select' ? '<option value="">과목 선택</option>' : '';
         select.innerHTML = defaultOption;
     });
 
     store.data.subjects.forEach(sub => {
-        // 리스트 아이템 추가
         const li = document.createElement('li');
         li.className = 'subject-item';
         li.innerHTML = `
@@ -54,7 +83,6 @@ function renderSubjects() {
         `;
         li.querySelector('.del-btn').addEventListener('click', () => {
             store.data.subjects = store.data.subjects.filter(s => s.id !== sub.id);
-            // 관련 데이터 정리
             store.data.todos.forEach(t => { if(t.subjectId === sub.id) t.subjectId = ''; });
             Object.keys(store.data.timeBlocks).forEach(h => { if(store.data.timeBlocks[h] === sub.id) delete store.data.timeBlocks[h]; });
             delete store.data.studyRecords[sub.id];
@@ -62,7 +90,6 @@ function renderSubjects() {
         });
         subjectListEl.appendChild(li);
 
-        // Select 박스 옵션 추가
         selects.forEach(select => {
             const option = document.createElement('option');
             option.value = sub.id;
@@ -78,7 +105,7 @@ addSubjectBtn.addEventListener('click', () => {
     store.data.subjects.push({
         id: 'sub_' + Date.now(),
         name,
-        color: subjectColorInput.value
+        color: selectedColor
     });
     subjectNameInput.value = '';
     store.save();
@@ -100,15 +127,13 @@ function renderTodos() {
         li.className = `todo-item ${todo.completed ? 'completed' : ''}`;
         
         let badgeHTML = '';
-        if (sub) {
-            badgeHTML = `<span class="todo-subject-badge" style="background-color: ${sub.color}">${sub.name}</span>`;
-        }
+        if (sub) badgeHTML = `<span class="todo-subject-badge" style="background-color: ${sub.color}; color: #333;">${sub.name}</span>`;
 
         li.innerHTML = `
             <input type="checkbox" class="todo-check" ${todo.completed ? 'checked' : ''}>
             <span class="todo-text">${todo.text}</span>
             ${badgeHTML}
-            <button class="del-btn" style="color:var(--text-muted); font-size:1rem;">×</button>
+            <button class="del-btn" style="color:var(--text-muted); font-size:1.2rem;">×</button>
         `;
 
         li.querySelector('.todo-check').addEventListener('change', (e) => {
@@ -160,59 +185,37 @@ function formatTime(sec) {
     return `${h}:${m}:${s}`;
 }
 
-function updateDisplay() {
-    displayEl.textContent = formatTime(timerSeconds);
-}
+function updateDisplay() { displayEl.textContent = formatTime(timerSeconds); }
 
 btnStart.addEventListener('click', () => {
     if (isRunning) return;
     isRunning = true;
-    btnStart.disabled = true;
-    btnStop.disabled = false;
+    btnStart.disabled = true; btnStop.disabled = false;
     saveArea.style.display = 'none';
-    
-    timerInterval = setInterval(() => {
-        timerSeconds++;
-        updateDisplay();
-    }, 1000);
+    timerInterval = setInterval(() => { timerSeconds++; updateDisplay(); }, 1000);
 });
 
 function stopTimer() {
     if (!isRunning) return;
     isRunning = false;
     clearInterval(timerInterval);
-    btnStart.disabled = false;
-    btnStop.disabled = true;
-    
-    // 시간 저장 영역 표시 (과목이 하나라도 있고, 1초 이상 측정되었을 때)
-    if (timerSeconds > 0 && store.data.subjects.length > 0) {
-        saveArea.style.display = 'block';
-    }
+    btnStart.disabled = false; btnStop.disabled = true;
+    if (timerSeconds > 0 && store.data.subjects.length > 0) saveArea.style.display = 'flex';
 }
 
 btnStop.addEventListener('click', stopTimer);
-
 btnReset.addEventListener('click', () => {
-    stopTimer();
-    timerSeconds = 0;
-    updateDisplay();
-    saveArea.style.display = 'none';
+    stopTimer(); timerSeconds = 0; updateDisplay(); saveArea.style.display = 'none';
 });
 
 saveBtn.addEventListener('click', () => {
     const subId = timerSubjectSelect.value;
     if (!subId) return alert('과목을 선택해주세요.');
-    
     if (!store.data.studyRecords[subId]) store.data.studyRecords[subId] = 0;
     store.data.studyRecords[subId] += timerSeconds;
-    
-    timerSeconds = 0;
-    updateDisplay();
-    saveArea.style.display = 'none';
-    store.save();
+    timerSeconds = 0; updateDisplay(); saveArea.style.display = 'none'; store.save();
 });
 
-// 브라우저 탭 이탈 시 자동 정지 (핵심 요구사항)
 document.addEventListener('visibilitychange', () => {
     if (document.hidden && isRunning) {
         stopTimer();
@@ -220,37 +223,37 @@ document.addEventListener('visibilitychange', () => {
     }
 });
 
-
 // ==========================================
-// 4. Time Table (24 Hours)
+// 4. Time Table (06:00 ~ 23:00)
 // ==========================================
-const timeLabelsEl = document.getElementById('time-labels');
-const timeGridEl = document.getElementById('time-grid');
+const timeGridContainer = document.getElementById('time-grid-container');
 const modalOverlay = document.getElementById('modal-overlay');
 let selectedHour = null;
 
 function initTimeTable() {
-    timeLabelsEl.innerHTML = '';
-    timeGridEl.innerHTML = '';
-    
-    for (let i = 0; i < 24; i++) {
-        // Labels
+    timeGridContainer.innerHTML = '';
+    // 06:00 부터 23:00 까지
+    for (let i = 6; i < 24; i++) {
+        const row = document.createElement('div');
+        row.className = 'time-row';
+        
         const label = document.createElement('div');
         label.className = 'time-label';
-        label.textContent = `${i}:00`;
-        timeLabelsEl.appendChild(label);
+        label.textContent = `${i < 10 ? '0'+i : i}:00`;
 
-        // Slots
         const slot = document.createElement('div');
         slot.className = 'time-slot';
         slot.dataset.hour = i;
         slot.addEventListener('click', () => openModal(i));
-        timeGridEl.appendChild(slot);
+
+        row.appendChild(label);
+        row.appendChild(slot);
+        timeGridContainer.appendChild(row);
     }
 }
 
 function renderTimeTable() {
-    const slots = timeGridEl.querySelectorAll('.time-slot');
+    const slots = timeGridContainer.querySelectorAll('.time-slot');
     slots.forEach(slot => {
         const hour = slot.dataset.hour;
         const subId = store.data.timeBlocks[hour];
@@ -268,7 +271,7 @@ function renderTimeTable() {
 }
 
 function openModal(hour) {
-    if (store.data.subjects.length === 0) return alert('먼저 과목을 등록해주세요.');
+    if (store.data.subjects.length === 0) return alert('과목을 먼저 등록해주세요.');
     selectedHour = hour;
     const currentSub = store.data.timeBlocks[hour];
     document.getElementById('modal-subject-select').value = currentSub || '';
@@ -289,7 +292,7 @@ document.getElementById('modal-confirm').addEventListener('click', () => {
 });
 
 // ==========================================
-// 5. Statistics (No Framework, CSS only)
+// 5. Statistics
 // ==========================================
 const totalTimeVal = document.getElementById('total-time-val');
 const todoRateVal = document.getElementById('todo-rate-val');
@@ -298,7 +301,6 @@ const chartLegend = document.getElementById('chart-legend');
 const barChart = document.getElementById('bar-chart');
 
 function renderStats() {
-    // 1. 총 학습 시간 및 투두 달성률
     let totalSec = 0;
     Object.values(store.data.studyRecords).forEach(sec => totalSec += sec);
     totalTimeVal.textContent = `${Math.floor(totalSec / 3600)}h ${Math.floor((totalSec % 3600) / 60)}m`;
@@ -308,43 +310,36 @@ function renderStats() {
     const rate = totalTodos === 0 ? 0 : Math.round((completedTodos / totalTodos) * 100);
     todoRateVal.textContent = `${rate}%`;
 
-    // 2. Pie Chart (과목별 비중) & Legend
     chartLegend.innerHTML = '';
     if (totalSec === 0) {
-        pieChart.style.background = '#e5e7eb';
+        pieChart.style.background = '#eee';
         barChart.innerHTML = '<p style="color:var(--text-muted); font-size:0.8rem; margin:auto;">데이터가 없습니다.</p>';
         return;
     }
 
     let gradientString = [];
     let currentDegree = 0;
-    
-    barChart.innerHTML = ''; // 바 차트 초기화
-
-    // 가장 많이 공부한 과목의 시간을 기준으로 바 차트 높이 계산 (maxHeight = 100%)
+    barChart.innerHTML = '';
     const maxSec = Math.max(...Object.values(store.data.studyRecords));
 
     store.data.subjects.forEach(sub => {
         const sec = store.data.studyRecords[sub.id] || 0;
         if (sec > 0) {
-            // Pie Chart 로직
             const degree = (sec / totalSec) * 360;
             gradientString.push(`${sub.color} ${currentDegree}deg ${currentDegree + degree}deg`);
             currentDegree += degree;
 
-            // Legend 추가
             const percent = Math.round((sec / totalSec) * 100);
             const li = document.createElement('li');
             li.innerHTML = `<span style="display:flex; align-items:center; gap:5px;"><span class="color-dot" style="background-color:${sub.color}"></span> ${sub.name}</span> <span>${percent}%</span>`;
             chartLegend.appendChild(li);
 
-            // Bar Chart 로직
             const heightPercent = (sec / maxSec) * 100;
             const bar = document.createElement('div');
             bar.className = 'bar';
             bar.style.backgroundColor = sub.color;
             bar.style.height = `${heightPercent}%`;
-            bar.dataset.label = sub.name.substring(0, 3); // 과목명 앞 3글자
+            bar.dataset.label = sub.name.substring(0, 3);
             bar.dataset.time = `${Math.round(sec / 60)}m`;
             barChart.appendChild(bar);
         }
@@ -354,15 +349,11 @@ function renderStats() {
 }
 
 // ==========================================
-// Initialization & Subscription
+// Init
 // ==========================================
 document.addEventListener('store-updated', () => {
-    renderSubjects();
-    renderTodos();
-    renderTimeTable();
-    renderStats();
+    renderSubjects(); renderTodos(); renderTimeTable(); renderStats();
 });
 
-// App Start
 initTimeTable();
 document.dispatchEvent(new Event('store-updated'));

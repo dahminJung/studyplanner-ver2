@@ -1,28 +1,26 @@
-# Study Planner Pro - Project Blueprint (v2.0)
+# Comprehensive Study Planner - Project Blueprint
 
 ## 1. Overview
-사용자의 학습 목표를 관리하고 성취도를 시각화하는 고성능, 고품격 스터디 플래너입니다. 프레임워크 없이 순수 웹 표준 기술(Web Components)만으로 빌드된 최고 사양의 애플리케이션입니다.
+시간표, 투두 리스트, 학습 타이머, 그리고 통계 분석 기능을 하나의 대시보드에 통합한 종합 스터디 플래너 애플리케이션입니다. 프레임워크 없는 순수 바닐라 웹 기술을 사용하여 높은 성능과 유지보수성을 확보합니다.
 
-## 2. Technical Stack (Highest Standards)
-- **Architecture**: Custom Web Components (Shadow DOM) 기반 모듈화.
-- **Styling**: 
-    - CSS Variables (Theming).
-    - Container Queries (컴포넌트 단위 반응형).
-    - `:has()` Selector (부모 요소 상태 제어).
-    - OKLCH Color Space (정교한 색상 시스템).
-- **Functionality**:
-    - Task CRUD (생성, 읽기, 수정, 삭제).
-    - 로컬 저장소 연동 (Data Persistence).
-    - 학습 진행률 실시간 트래킹 (Progress Visualization).
-    - 필터링 및 정렬 기능.
+## 2. Core Features
+- **과목 관리 (Subject Management)**: 과목 생성, 고유 색상(Color picker) 지정.
+- **시간표 (Time Table)**: 일간 24시간 타임라인. 특정 시간대에 과목 블록을 배치.
+- **투두 리스트 (To-Do List)**: 해야 할 일 기록 및 완료 체크. 완료율 통계 연동.
+- **스마트 타이머 (Smart Timer)**:
+    - 스톱워치 기능 (시작/일시정지/초기화).
+    - 브라우저 탭 이탈 시(visibilitychange) 자동 일시 정지.
+    - 정지 시 측정된 시간을 특정 과목의 학습 기록으로 저장.
+- **통계 대시보드 (Statistics)**:
+    - 과목별 누적 학습 시간을 파이 차트(CSS Conic Gradient)와 막대 그래프로 시각화.
+    - 투두 리스트 달성률 연동.
+- **데이터 퍼시스턴스**: 모든 데이터를 `localStorage`에 저장하여 새로고침 시 유지.
 
-## 3. Visual Identity
-- **Modern Aesthetic**: 카드 기반 레이아웃, 깊이감 있는 그림자(Multi-layered shadows).
-- **Micro-interactions**: 버튼 호버, 리스트 추가 시 부드러운 트랜지션.
-- **Typography**: Pretendard (가독성 높은 폰트).
-
-## 4. Implementation Steps
-1. **Scaffold**: 기본 HTML 구조 및 Web Components 정의.
-2. **Components**: `study-header`, `study-input`, `study-list`, `study-card` 컴포넌트 구현.
-3. **State Management**: 데이터 중심의 상태 관리 로직 작성.
-4. **Refining**: 애니메이션 및 다크모드 대응 스타일링.
+## 3. Architecture & Tech Stack
+- **HTML**: 시멘틱 태그 및 Web Components (`<study-timer>`, `<todo-list>`, `<time-table>`, `<study-stats>`) 기반 모듈화.
+- **CSS**: 
+    - CSS Grid & Flexbox를 활용한 대시보드 레이아웃.
+    - CSS Variables를 활용한 테마 및 과목별 동적 색상 매핑.
+- **JavaScript**:
+    - ES6+ 클래스 및 모듈 패턴.
+    - 옵저버 패턴 또는 커스텀 이벤트를 활용한 컴포넌트 간 상태 공유 (예: 타이머 종료 -> 통계 업데이트).

@@ -86,10 +86,10 @@ body {
     border-right: 1px solid var(--border); font-weight: 500;
 }
 .time-slot {
-    flex: 1; border-right: 1px solid var(--border); cursor: pointer;
-    display: flex; align-items: center; padding-left: 1rem;
-    font-weight: 600; color: #333; transition: background 0.2s;
+    flex: 1; border-right: 1px dashed var(--border); cursor: pointer;
+    transition: background 0.2s;
 }
+.time-slot:last-child { border-right: none; }
 .time-slot:hover { background: #f0f0f0; }
 
 /* Sidebar Boxes */

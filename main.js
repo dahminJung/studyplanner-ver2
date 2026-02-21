@@ -223,7 +223,7 @@ document.addEventListener('visibilitychange', () => {
 });
 
 // ==========================================
-// 4. Time Table (Drag & Popup)
+// 4. Time Table (Drag & Popup, 10-min intervals)
 // ==========================================
 const timeGridContainer = document.getElementById('time-grid-container');
 const subjectPopup = document.getElementById('subject-popup');
@@ -232,7 +232,7 @@ const popupClearBtn = document.getElementById('popup-clear');
 const popupCloseBtn = document.getElementById('popup-close');
 
 let isDragging = false;
-let dragSelectedHours = new Set();
+let dragSelectedTimes = new Set();
 
 function initTimeTable() {
     timeGridContainer.innerHTML = '';
@@ -247,37 +247,42 @@ function initTimeTable() {
         const label = document.createElement('div');
         label.className = 'time-label';
         label.textContent = `${i < 10 ? '0'+i : i}:00`;
-
-        const slot = document.createElement('div');
-        slot.className = 'time-slot';
-        slot.dataset.hour = i;
-        
-        // 드래그 시작
-        slot.addEventListener('mousedown', (e) => {
-            if (store.data.subjects.length === 0) {
-                alert('과목을 먼저 등록해주세요.');
-                return;
-            }
-            if(e.button !== 0) return; // 좌클릭만 허용
-            isDragging = true;
-            dragSelectedHours.clear();
-            document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
-            subjectPopup.style.display = 'none';
-            
-            dragSelectedHours.add(i);
-            slot.classList.add('selected');
-        });
-        
-        // 드래그 중
-        slot.addEventListener('mouseenter', () => {
-            if (isDragging) {
-                dragSelectedHours.add(i);
-                slot.classList.add('selected');
-            }
-        });
-
         row.appendChild(label);
-        row.appendChild(slot);
+
+        // 10분 단위로 6개의 슬롯 생성
+        for (let m = 0; m < 60; m += 10) {
+            const slot = document.createElement('div');
+            slot.className = 'time-slot';
+            const timeKey = `${i}:${m}`;
+            slot.dataset.timeKey = timeKey;
+            
+            // 드래그 시작
+            slot.addEventListener('mousedown', (e) => {
+                if (store.data.subjects.length === 0) {
+                    alert('과목을 먼저 등록해주세요.');
+                    return;
+                }
+                if(e.button !== 0) return; // 좌클릭만 허용
+                isDragging = true;
+                dragSelectedTimes.clear();
+                document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+                subjectPopup.style.display = 'none';
+                
+                dragSelectedTimes.add(timeKey);
+                slot.classList.add('selected');
+            });
+            
+            // 드래그 중
+            slot.addEventListener('mouseenter', () => {
+                if (isDragging) {
+                    dragSelectedTimes.add(timeKey);
+                    slot.classList.add('selected');
+                }
+            });
+
+            row.appendChild(slot);
+        }
+        
         timeGridContainer.appendChild(row);
     }
 }
@@ -286,7 +291,7 @@ function handleDragEnd(e) {
     if (!isDragging) return;
     isDragging = false;
     
-    if (dragSelectedHours.size > 0) {
+    if (dragSelectedTimes.size > 0) {
         showSubjectPopup(e.pageX, e.pageY);
     }
 }
@@ -301,8 +306,8 @@ function showSubjectPopup(x, y) {
         dot.title = sub.name;
         
         dot.addEventListener('click', () => {
-            dragSelectedHours.forEach(hour => {
-                store.data.timeBlocks[hour] = sub.id;
+            dragSelectedTimes.forEach(timeKey => {
+                store.data.timeBlocks[timeKey] = sub.id;
             });
             closePopupAndSave();
         });
@@ -318,13 +323,13 @@ function showSubjectPopup(x, y) {
 function closePopupAndSave() {
     subjectPopup.style.display = 'none';
     document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
-    dragSelectedHours.clear();
+    dragSelectedTimes.clear();
     store.save();
 }
 
 popupClearBtn.addEventListener('click', () => {
-    dragSelectedHours.forEach(hour => {
-        delete store.data.timeBlocks[hour];
+    dragSelectedTimes.forEach(timeKey => {
+        delete store.data.timeBlocks[timeKey];
     });
     closePopupAndSave();
 });
@@ -332,24 +337,24 @@ popupClearBtn.addEventListener('click', () => {
 popupCloseBtn.addEventListener('click', () => {
     subjectPopup.style.display = 'none';
     document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
-    dragSelectedHours.clear();
+    dragSelectedTimes.clear();
 });
 
 function renderTimeTable() {
     const slots = timeGridContainer.querySelectorAll('.time-slot');
     slots.forEach(slot => {
-        const hour = slot.dataset.hour;
-        const subId = store.data.timeBlocks[hour];
+        const timeKey = slot.dataset.timeKey;
+        const subId = store.data.timeBlocks[timeKey];
         if (subId) {
             const sub = store.data.subjects.find(s => s.id === subId);
             if (sub) {
                 slot.style.backgroundColor = sub.color;
-                slot.textContent = sub.name;
+                slot.title = sub.name; // 칸이 작아지므로 툴팁으로 과목명 표시
                 return;
             }
         }
         slot.style.backgroundColor = 'transparent';
-        slot.textContent = '';
+        slot.title = '';
     });
 }
 

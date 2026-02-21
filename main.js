@@ -59,8 +59,7 @@ colorBtns.forEach(btn => {
 
 const selects = [
     document.getElementById('todo-subject-select'),
-    document.getElementById('timer-subject-select'),
-    document.getElementById('modal-subject-select')
+    document.getElementById('timer-subject-select')
 ];
 
 function renderSubjects() {

@@ -224,15 +224,23 @@ document.addEventListener('visibilitychange', () => {
 });
 
 // ==========================================
-// 4. Time Table (06:00 ~ 23:00)
+// 4. Time Table (Drag & Popup)
 // ==========================================
 const timeGridContainer = document.getElementById('time-grid-container');
-const modalOverlay = document.getElementById('modal-overlay');
-let selectedHour = null;
+const subjectPopup = document.getElementById('subject-popup');
+const popupColorsContainer = document.getElementById('popup-colors');
+const popupClearBtn = document.getElementById('popup-clear');
+const popupCloseBtn = document.getElementById('popup-close');
+
+let isDragging = false;
+let dragSelectedHours = new Set();
 
 function initTimeTable() {
     timeGridContainer.innerHTML = '';
-    // 06:00 부터 23:00 까지
+    
+    // 글로벌 마우스 업 이벤트 (드래그 종료)
+    document.addEventListener('mouseup', handleDragEnd);
+    
     for (let i = 6; i < 24; i++) {
         const row = document.createElement('div');
         row.className = 'time-row';
@@ -244,13 +252,89 @@ function initTimeTable() {
         const slot = document.createElement('div');
         slot.className = 'time-slot';
         slot.dataset.hour = i;
-        slot.addEventListener('click', () => openModal(i));
+        
+        // 드래그 시작
+        slot.addEventListener('mousedown', (e) => {
+            if (store.data.subjects.length === 0) {
+                alert('과목을 먼저 등록해주세요.');
+                return;
+            }
+            if(e.button !== 0) return; // 좌클릭만 허용
+            isDragging = true;
+            dragSelectedHours.clear();
+            document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+            subjectPopup.style.display = 'none';
+            
+            dragSelectedHours.add(i);
+            slot.classList.add('selected');
+        });
+        
+        // 드래그 중
+        slot.addEventListener('mouseenter', () => {
+            if (isDragging) {
+                dragSelectedHours.add(i);
+                slot.classList.add('selected');
+            }
+        });
 
         row.appendChild(label);
         row.appendChild(slot);
         timeGridContainer.appendChild(row);
     }
 }
+
+function handleDragEnd(e) {
+    if (!isDragging) return;
+    isDragging = false;
+    
+    if (dragSelectedHours.size > 0) {
+        showSubjectPopup(e.pageX, e.pageY);
+    }
+}
+
+function showSubjectPopup(x, y) {
+    popupColorsContainer.innerHTML = '';
+    
+    store.data.subjects.forEach(sub => {
+        const dot = document.createElement('div');
+        dot.className = 'popup-color-dot';
+        dot.style.backgroundColor = sub.color;
+        dot.title = sub.name;
+        
+        dot.addEventListener('click', () => {
+            dragSelectedHours.forEach(hour => {
+                store.data.timeBlocks[hour] = sub.id;
+            });
+            closePopupAndSave();
+        });
+        popupColorsContainer.appendChild(dot);
+    });
+    
+    // 팝업 위치 조정 (마우스 커서 근처)
+    subjectPopup.style.left = `${x + 15}px`;
+    subjectPopup.style.top = `${y + 15}px`;
+    subjectPopup.style.display = 'flex';
+}
+
+function closePopupAndSave() {
+    subjectPopup.style.display = 'none';
+    document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+    dragSelectedHours.clear();
+    store.save();
+}
+
+popupClearBtn.addEventListener('click', () => {
+    dragSelectedHours.forEach(hour => {
+        delete store.data.timeBlocks[hour];
+    });
+    closePopupAndSave();
+});
+
+popupCloseBtn.addEventListener('click', () => {
+    subjectPopup.style.display = 'none';
+    document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+    dragSelectedHours.clear();
+});
 
 function renderTimeTable() {
     const slots = timeGridContainer.querySelectorAll('.time-slot');
@@ -269,27 +353,6 @@ function renderTimeTable() {
         slot.textContent = '';
     });
 }
-
-function openModal(hour) {
-    if (store.data.subjects.length === 0) return alert('과목을 먼저 등록해주세요.');
-    selectedHour = hour;
-    const currentSub = store.data.timeBlocks[hour];
-    document.getElementById('modal-subject-select').value = currentSub || '';
-    modalOverlay.style.display = 'flex';
-}
-
-document.getElementById('modal-cancel').addEventListener('click', () => { modalOverlay.style.display = 'none'; });
-document.getElementById('modal-clear').addEventListener('click', () => {
-    delete store.data.timeBlocks[selectedHour];
-    modalOverlay.style.display = 'none';
-    store.save();
-});
-document.getElementById('modal-confirm').addEventListener('click', () => {
-    const subId = document.getElementById('modal-subject-select').value;
-    if (subId) store.data.timeBlocks[selectedHour] = subId;
-    modalOverlay.style.display = 'none';
-    store.save();
-});
 
 // ==========================================
 // 5. Statistics

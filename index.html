@@ -121,16 +121,15 @@
 
     </div>
 
-    <!-- Modal (시간표 과목 배정) -->
-    <div id="modal-overlay" class="modal-overlay">
-        <div class="modal">
-            <h3>과목 배정</h3>
-            <select id="modal-subject-select"></select>
-            <div class="modal-actions">
-                <button id="modal-cancel" class="btn secondary">취소</button>
-                <button id="modal-clear" class="btn warning">지우기</button>
-                <button id="modal-confirm" class="btn primary">배정</button>
-            </div>
+    <!-- 미니 팝업 (시간표 과목 배정) -->
+    <div id="subject-popup" class="subject-popup">
+        <div class="popup-title">배정할 과목 선택</div>
+        <div id="popup-colors" class="popup-colors">
+            <!-- JS에서 과목 색상 동그라미들이 동적으로 들어갑니다 -->
+        </div>
+        <div class="popup-actions">
+            <button id="popup-clear" class="btn warning small">지우기</button>
+            <button id="popup-close" class="btn secondary small">닫기</button>
         </div>
     </div>
 

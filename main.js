@@ -8,7 +8,8 @@ class StudyStore {
             subjects: [],      // { id, name, color }
             todos: [],         // { id, text, subjectId, completed }
             timeBlocks: {},    // key: hour (6-23), value: subjectId
-            studyRecords: {}   // key: subjectId, value: seconds
+            studyRecords: {},  // key: subjectId, value: seconds
+            theme: 'light'     // 'light' or 'dark'
         };
     }
     save() {
@@ -19,12 +20,13 @@ class StudyStore {
 const store = new StudyStore();
 
 // ==========================================
-// 0. Navigation (Page Toggle)
+// 0. Navigation (Page Toggle) & Theme Toggle
 // ==========================================
 const btnPlanner = document.getElementById('nav-planner');
 const btnStats = document.getElementById('nav-stats');
 const pagePlanner = document.getElementById('planner-page');
 const pageStats = document.getElementById('stats-page');
+const themeToggle = document.getElementById('theme-toggle');
 
 btnPlanner.addEventListener('click', () => {
     btnPlanner.classList.add('active');
@@ -39,6 +41,25 @@ btnStats.addEventListener('click', () => {
     pageStats.classList.add('active');
     pagePlanner.classList.remove('active');
 });
+
+function applyTheme() {
+    if (store.data.theme === 'dark') {
+        document.body.classList.add('dark-mode');
+        themeToggle.textContent = '☀️';
+    } else {
+        document.body.classList.remove('dark-mode');
+        themeToggle.textContent = '🌙';
+    }
+}
+
+themeToggle.addEventListener('click', () => {
+    store.data.theme = store.data.theme === 'dark' ? 'light' : 'dark';
+    applyTheme();
+    store.save();
+});
+
+// Initial theme apply
+applyTheme();
 
 // ==========================================
 // 1. Subjects Management & Color Palette
